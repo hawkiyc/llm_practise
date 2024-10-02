@@ -1,3 +1,4 @@
 .env
 *.env
 *.env*
+basic_of_langchain/.ipynb_checkpoints/
