@@ -2,3 +2,9 @@
 *.env
 *.env*
 basic_of_langchain/.ipynb_checkpoints/
+
+lora_finetune_llm/.ipynb_checkpoints/
+
+lora_finetune_llm/llama_finetune/
+
+lora_finetune_llm/wandb/
