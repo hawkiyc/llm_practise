@@ -20,7 +20,13 @@ load_dotenv()
 #%%
 "Load API Key"
 
-groq_api_key = os.getenv('GROQ_API_KEY')
+if 'STREAMLIT_PUBLIC_PATH' in os.environ:
+    # Deploy on Streamlit Cloud
+    groq_api_key = st.secrets["GROQ_API_KEY"]
+else:
+    # Deploy on local
+    load_dotenv()
+    groq_api_key = os.getenv('GROQ_API_KEY')
 
 #%%
 "Build App"
