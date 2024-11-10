@@ -3,6 +3,7 @@
 
 import streamlit as st
 import os
+from pathlib import Path
 from langchain_groq import ChatGroq
 # from langchain_openai import OpenAIEmbeddings
 from langchain_community.embeddings import OllamaEmbeddings
@@ -14,8 +15,13 @@ from langchain_community.vectorstores import FAISS
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 
 from dotenv import load_dotenv
-load_dotenv()
 
+#%%
+"Get Correct Path"
+
+current_dir = Path(__file__).parent.absolute()
+doc_dir = os.path.join(current_dir, "research_papers")
+faiss_db_path = os.path.join(current_dir, "FAISS_DB")
 
 #%%
 "Load API Key"
@@ -48,17 +54,17 @@ def create_embedding_vector():
     if "vectors" not in st.session_state:
         st.session_state.embedding = OllamaEmbeddings(model = "llama3.2")
         try:
-            st.session_state.vectors = FAISS.load_local("./FAISS_DB", st.session_state.embedding, allow_dangerous_deserialization = True)
+            st.session_state.vectors = FAISS.load_local(faiss_db_path, st.session_state.embedding, allow_dangerous_deserialization = True)
             print('Loading FAISS DB!!!')
         except:
             print('Create FAISS DB!!!')
-            st.session_state.loader = PyPDFDirectoryLoader(path = './research_papers')
+            st.session_state.loader = PyPDFDirectoryLoader(path = doc_dir)
             st.session_state.docs = st.session_state.loader.load()
             st.session_state.text_splitter = RecursiveCharacterTextSplitter(chunk_size = 1024, chunk_overlap = 256)
             st.session_state.final_docs = st.session_state.text_splitter.split_documents(st.session_state.docs)
             FAISS_DB = FAISS.from_documents(st.session_state.final_docs, st.session_state.embedding)
             st.session_state.vectors = FAISS_DB
-            FAISS_DB.save_local("FAISS_DB")
+            FAISS_DB.save_local(faiss_db_path)
             print("FAISS DB Saved!!!")
 
 st.title('RAG Q&A with Groq and Llama3.2')
