@@ -5,8 +5,8 @@ import streamlit as st
 import os
 from pathlib import Path
 from langchain_groq import ChatGroq
-# from langchain_openai import OpenAIEmbeddings
-from langchain_community.embeddings import OllamaEmbeddings
+from langchain_openai import OpenAIEmbeddings
+# from langchain_community.embeddings import OllamaEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
@@ -29,15 +29,17 @@ faiss_db_path = os.path.join(current_dir, "FAISS_DB")
 if 'STREAMLIT_PUBLIC_PATH' in os.environ:
     # Deploy on Streamlit Cloud
     groq_api_key = st.secrets["GROQ_API_KEY"]
+    openai_api_key = st.secrets["OPENAI_API_KEY"]
 else:
     # Deploy on local
     load_dotenv()
     groq_api_key = os.getenv('GROQ_API_KEY')
+    openai_api_key = os.getenv("OPENAI_API_KEY")
 
 #%%
 "Build App"
 
-llm = ChatGroq(api_key = groq_api_key, model = "llama-3.2-11b-text-preview")
+llm = ChatGroq(api_key = groq_api_key, model = "llama-3.2-90b-text-preview")
 
 prompt = ChatPromptTemplate.from_template(
     """
@@ -52,7 +54,7 @@ prompt = ChatPromptTemplate.from_template(
 def create_embedding_vector():
 
     if "vectors" not in st.session_state:
-        st.session_state.embedding = OllamaEmbeddings(model = "llama3.2")
+        st.session_state.embedding = OpenAIEmbeddings(model = 'text-embedding-3-large', api_key = openai_api_key)
         try:
             st.session_state.vectors = FAISS.load_local(faiss_db_path, st.session_state.embedding, allow_dangerous_deserialization = True)
             print('Loading FAISS DB!!!')
