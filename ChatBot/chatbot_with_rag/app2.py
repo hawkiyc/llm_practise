@@ -16,10 +16,6 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-import chromadb.api
-from chromadb.config import Settings
-
-chromadb.api.client.SharedSystemClient.clear_system_cache()
 
 #%% Get Correct Path
 
