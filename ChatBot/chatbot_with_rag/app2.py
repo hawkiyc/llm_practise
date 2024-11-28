@@ -36,7 +36,7 @@ else:
 #%% Load LLM and Embedding
 
 embeddings = HuggingFaceEmbeddings(model_name='all-MiniLM-L6-v2')
-llm = ChatGroq(api_key=groq_api_key, model="llama-3.2-90b-text-preview")
+llm = ChatGroq(api_key=groq_api_key, model="llama-3.2-90b-vision-preview")
 
 #%% Initialize session state
 
@@ -134,7 +134,8 @@ if st.button("Submit"):
 
         contextual_sys_prompt = '''
             Given a chat history and the latest user question which might reference context in the chat history, 
-            formulate a standalone question which can be understood without the chat history. Do NOT answer the question, '''
+            formulate a standalone question which can be understood without the chat history. Do NOT answer the question, 
+            just reformulate it if needed and otherwise return it as is.'''
         contextual_prompt = ChatPromptTemplate.from_messages(
             [('system', contextual_sys_prompt),
                 MessagesPlaceholder('chat_history'),
