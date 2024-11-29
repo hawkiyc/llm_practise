@@ -12,3 +12,5 @@ lora_finetune_llm/wandb/
 ChatBot/chatbot_with_rag/CHROMA_DB/
 
 ChatBot/chatbot_with_rag/FAISS_DB/
+
+lora_finetune_llm/FAISS_DB/
