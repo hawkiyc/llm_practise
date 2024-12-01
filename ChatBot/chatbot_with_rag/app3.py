@@ -27,11 +27,9 @@ db_path = os.path.join(current_dir, "FAISS_DB")
 #%% Load API Key
 
 if 'STREAMLIT_PUBLIC_PATH' in os.environ:
-    groq_api_key = st.secrets["GROQ_API_KEY"]
     os.environ["HF_TOKEN"] = st.secrets['HUGGINGFACE_TOKEN']
 else:
     load_dotenv()
-    groq_api_key = os.getenv('GROQ_API_KEY')
     os.environ["HF_TOKEN"] = os.getenv('HUGGINGFACE_TOKEN')
 
 #%% Load LLM and Embedding
@@ -39,8 +37,7 @@ else:
 embeddings = HuggingFaceEmbeddings(model_name='all-MiniLM-L6-v2')
 
 bnb_config = BitsAndBytesConfig(
-    load_in_8bit = True,
-    bnb_4bit_compute_dtype = torch.bfloat16,)
+    load_in_8bit = True,)
 tokenizer = AutoTokenizer.from_pretrained(
     "meta-llama/Llama-3.1-8B-Instruct",)
 streamer = TextStreamer(tokenizer)
@@ -57,9 +54,10 @@ llm_pipeline = pipeline(
     temperature = 0.7,
     top_p = .95,
     max_new_tokens = 1024,
-    trust_remote_code=True)
+    trust_remote_code=True,
+    return_full_text=False)
 hf_pipeline = HuggingFacePipeline(pipeline=llm_pipeline)
-llm = ChatHuggingFace(llm=hf_pipeline,)
+llm = ChatHuggingFace(llm=hf_pipeline, tokenizer=hf_pipeline.pipeline.tokenizer)
 
 #%% Initialize session state
 
