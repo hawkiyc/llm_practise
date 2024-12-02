@@ -34,12 +34,13 @@ else:
 
 #%% Load LLM and Embedding
 
-embeddings = HuggingFaceEmbeddings(model_name='all-MiniLM-L6-v2')
+embeddings = HuggingFaceEmbeddings(
+    model_name='all-MiniLM-L6-v2',)
 
 bnb_config = BitsAndBytesConfig(
-    load_in_8bit = True,)
+    load_in_8bit = True, )
 tokenizer = AutoTokenizer.from_pretrained(
-    "meta-llama/Llama-3.1-8B-Instruct",)
+    "meta-llama/Llama-3.1-8B-Instruct", )
 streamer = TextStreamer(tokenizer)
 model = AutoModelForCausalLM.from_pretrained(
     "meta-llama/Llama-3.1-8B-Instruct",
@@ -49,13 +50,13 @@ llm_pipeline = pipeline(
     "text-generation", 
     model = model, 
     tokenizer = tokenizer, 
-     streamer = streamer,
+    streamer = streamer,
     torch_dtype = torch.bfloat16,
     temperature = 0.7,
     top_p = .95,
     max_new_tokens = 1024,
-    trust_remote_code=True,
-    return_full_text=False)
+    trust_remote_code = True,
+    return_full_text = False,)
 hf_pipeline = HuggingFacePipeline(pipeline=llm_pipeline)
 llm = ChatHuggingFace(llm=hf_pipeline, tokenizer=hf_pipeline.pipeline.tokenizer)
 
