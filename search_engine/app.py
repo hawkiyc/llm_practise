@@ -5,9 +5,18 @@ from langchain_groq import ChatGroq
 from langchain_community.utilities import ArxivAPIWrapper, WikipediaAPIWrapper, DuckDuckGoSearchAPIWrapper
 from langchain_community.tools import ArxivQueryRun, WikipediaQueryRun, DuckDuckGoSearchResults
 from langchain.agents import initialize_agent, AgentType
-from langchain.callbacks import StreamlitCallbackHandler
+from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
 import os
+from pathlib import Path
 from dotenv import load_dotenv
+import asyncio
+
+#%% Set Async
+
+try:
+    asyncio.get_event_loop()
+except RuntimeError:
+    asyncio.set_event_loop(asyncio.new_event_loop())
 
 #%% Get Correct Path
 
@@ -27,13 +36,13 @@ else:
 
 #%% API Wrapper and Tools
 
-arxiv_wrapper = ArxivAPIWrapper(top_k_results = 5,doc_content_chars_max = 512)
+arxiv_wrapper = ArxivAPIWrapper(top_k_results = 3,doc_content_chars_max = 512)
 arxiv_tool = ArxivQueryRun(api_wrapper = arxiv_wrapper)
 
-wiki_wrapper = WikipediaAPIWrapper(top_k_results = 5,doc_content_chars_max = 512)
+wiki_wrapper = WikipediaAPIWrapper(top_k_results = 3,doc_content_chars_max = 512)
 wiki_tool = WikipediaQueryRun(api_wrapper = wiki_wrapper)
 
-search_wrapper = DuckDuckGoSearchAPIWrapper(safesearch = 'off', max_results = 5,)
+search_wrapper = DuckDuckGoSearchAPIWrapper(safesearch = 'off', max_results = 3,)
 search_tool = DuckDuckGoSearchResults(api_wrapper = search_wrapper,)
 
 tools = [arxiv_tool, wiki_tool, search_tool]
@@ -48,5 +57,34 @@ if 'messages' not in st.session_state:
          'content': 'I am a chatbot with search engine. I am here to answer your question. What do you want to know?'}]
 
 for msg in st.session_state.messages:
-    st.chat_message(msg['role'].write(msg['content']))
+    st.chat_message(msg['role']).write(msg['content'])
 
+if prompt := st.chat_input(placeholder = 'What is Deep Learning?'):
+    st.session_state.messages.append({'role':'user','content':prompt})
+    st.chat_message('user').write(prompt)
+    
+    llm = ChatGroq(
+        api_key=groq_api_key, 
+        model="llama-3.2-90b-vision-preview",
+        streaming=True,
+        max_tokens=1024,
+        temperature=.7,)
+    agent = initialize_agent(
+        tools, llm, 
+        agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION, 
+        handling_parsing_errors=True,
+        max_iterations=50,
+        max_execution_time=90)
+    
+    with st.chat_message('assistant'):
+        callback=StreamlitCallbackHandler(st.container(), expand_new_thoughts=True)
+        try:
+            response=agent.run(st.session_state.messages, callbacks=[callback])
+            st.session_state.messages.append({'role': 'assistant', 'content':response})
+            st.write(response)
+        except ValueError as e:
+            st.error(f"An error occurred while parsing the response: {e}")
+            st.session_state.messages.append(
+                {'role': 'assistant', 
+                'content': 'Sorry, I encountered an issue processing your request. Please try asking in a different way.'})
+            st.write('Sorry, I encountered an issue processing your request. Please try asking in a different way.')
