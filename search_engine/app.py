@@ -2,8 +2,8 @@
 
 import streamlit as st
 from langchain_groq import ChatGroq
-from langchain_community.utilities import ArxivAPIWrapper, WikipediaAPIWrapper, DuckDuckGoSearchAPIWrapper
-from langchain_community.tools import ArxivQueryRun, WikipediaQueryRun, DuckDuckGoSearchResults
+from langchain_community.utilities import ArxivAPIWrapper, WikipediaAPIWrapper, GoogleSerperAPIWrapper
+from langchain_community.tools import ArxivQueryRun, WikipediaQueryRun, GoogleSerperRun
 from langchain.agents import initialize_agent, AgentType
 from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
 import os
@@ -29,10 +29,12 @@ db_path = os.path.join(current_dir, "FAISS_DB")
 if 'STREAMLIT_PUBLIC_PATH' in os.environ:
     groq_api_key = st.secrets["GROQ_API_KEY"]
     os.environ["HF_TOKEN"] = st.secrets['HUGGINGFACE_TOKEN']
+    os.environ["SERPER_API_KEY"] = st.secrets['SERPER_API_KEY']
 else:
     load_dotenv()
     groq_api_key = os.getenv('GROQ_API_KEY')
     os.environ["HF_TOKEN"] = os.getenv('HUGGINGFACE_TOKEN')
+    os.environ["SERPER_API_KEY"] = os.getenv('SERPER_API_KEY')
 
 #%% API Wrapper and Tools
 
@@ -42,8 +44,8 @@ arxiv_tool = ArxivQueryRun(api_wrapper = arxiv_wrapper)
 wiki_wrapper = WikipediaAPIWrapper(top_k_results = 3,doc_content_chars_max = 512)
 wiki_tool = WikipediaQueryRun(api_wrapper = wiki_wrapper)
 
-search_wrapper = DuckDuckGoSearchAPIWrapper(safesearch = 'off', max_results = 3,)
-search_tool = DuckDuckGoSearchResults(api_wrapper = search_wrapper,)
+search_wrapper = GoogleSerperAPIWrapper(k = 3)
+search_tool = GoogleSerperRun(api_wrapper = search_wrapper,)
 
 tools = [arxiv_tool, wiki_tool, search_tool]
 
