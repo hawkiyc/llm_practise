@@ -20,7 +20,7 @@ groq_api_key = os.getenv('GROQ_API_KEY')
 
 #%% Load LLM
 
-llm = ChatGroq(model="llama-3.2-90b-text-preview", api_key = groq_api_key,)
+llm = ChatGroq(model="llama-3.2-90b-vision-preview", api_key = groq_api_key,)
 sys_temp = "You are a expericnced translator, please translate input into {language}"
 prompt = ChatPromptTemplate.from_messages(
     [('system', sys_temp), ('user', '{text}')])
