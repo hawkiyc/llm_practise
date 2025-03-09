@@ -26,7 +26,7 @@ else:
 st.set_page_config(page_title="LangChain: Solve Math Questions", page_icon="🧮")
 st.title("🧮 LangChain: Solve Math Questions")
 
-llm = ChatGroq(api_key=groq_api_key, model_name="mixtral-8x7b-32768", )
+llm = ChatGroq(api_key=groq_api_key, model_name="deepseek-r1-distill-llama-70b", )
 
 wiki_wrapper = WikipediaAPIWrapper(top_k_results = 3,doc_content_chars_max = 512)
 wiki_tool = Tool(
@@ -68,9 +68,9 @@ if 'messages' not in st.session_state:
         {'role': 'assistant', 
          'content': "I am an AI assistant that can help you solve math questions. Please ask me a math question."}]
 
-# for msg in st.session_state.messages:
-#     if msg["role"] != "system": 
-#         st.chat_message(msg["role"]).write(msg["content"])
+for msg in st.session_state.messages:
+    if msg["role"] != "system": 
+        st.chat_message(msg["role"]).write(msg["content"])
 
 # def generate_response(question):
 #     response = agent.invoke({'input': question})
