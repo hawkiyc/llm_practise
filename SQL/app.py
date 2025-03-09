@@ -132,4 +132,4 @@ if db:
             streamlit_callback = StreamlitCallbackHandler(st.container())
             response = agent.run(user_query, callbacks=[streamlit_callback])
             st.session_state.messages.append({"role": "assistant", "content": response})
-            st.write(response)    
+        st.chat_message("assistant").write(response)   
