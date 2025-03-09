@@ -18,7 +18,11 @@ if 'STREAMLIT_PUBLIC_PATH' in os.environ:
 else:
     # Deploy on local
     load_dotenv()
+<<<<<<< HEAD
     os.environ["HF_TOKEN"] = os.getenv('HUGGINGFACE_TOKEN_2')
+=======
+    os.environ["HF_TOKEN"] = os.getenv('HUGGINGFACE_TOKEN')
+>>>>>>> origin/main
 
 # Build Streamlit App
 
